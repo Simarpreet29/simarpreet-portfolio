@@ -9,6 +9,80 @@ import { FiExternalLink, FiDownload, FiSend, FiX, FiMenu, FiMoon, FiSun } from '
 const NAV_LINKS = ['About', 'Projects', 'Certificates', 'Contact'];
 const PROJECT_FILTERS = ['All', 'MERN Stack', 'AI Projects'];
 const SMOOTH_EASE = [0.22, 1, 0.36, 1];
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? '' : 'http://localhost:5000')).replace(/\/$/, '');
+
+const buildApiUrl = (path) => `${API_BASE_URL}${path}`;
+
+const DEFAULT_PROJECTS = [
+  {
+    title: 'DAV College Website',
+    desc: 'AI-assisted responsive web platform with modern navigation.',
+    tech: ['React', 'Tailwind', 'Node.js', 'AI'],
+    link: 'https://davasr.netlify.app/',
+    imagePath: '/Dav College.jpeg'
+  },
+  {
+    title: 'QuickFix Web Platform',
+    desc: 'A fast, service-focused web platform with a clean user journey and responsive layout.',
+    tech: ['React', 'NodeJs', 'MongoDb', 'AI', 'Tailwind CSS'],
+    link: 'https://github.com/Simarpreet29/quick-fix-website',
+    imagePath: '/quickFixWebsie.jpeg'
+  },
+  {
+    title: 'SmartBite-Foodorder-website',
+    desc: 'Full-stack food ordering app with React frontend and Express/MongoDB backend.',
+    tech: ['MERN Stack', 'React', 'Tailwind CSS', 'NodeJs', 'MongoDb'],
+    link: 'https://github.com/Simarpreet29/SmartBite-Foodorder-website',
+    imagePath: '/SmartBite website.jpeg'
+  },
+  {
+    title: 'Traveloo - AI Travel Planner',
+    desc: 'AI-powered travel planning app that helps users generate smart itineraries quickly.',
+    tech: ['React', 'NodeJs', 'MongoDb', 'AI', 'Tailwind CSS'],
+    link: 'https://github.com/Simarpreet29/traveloo',
+    imagePath: '/Traveloo Website.jpeg'
+  },
+  {
+    title: 'StaySync - Smart PG & Hostel Management System',
+    desc: 'StaySync is a full-stack MERN application designed to simplify finding and managing PG/Hostel accommodations.',
+    tech: ['MERN Stack', 'React', 'NodeJs', 'MongoDb', 'Tailwind CSS'],
+    link: 'https://github.com/Simarpreet29/StaySync',
+    imagePath: '/StaySync Website.jpeg'
+  }
+];
+
+const DEFAULT_CERTIFICATES = [
+  {
+    title: 'Hackathon Participation',
+    organization: 'Smart Internal Hackathon',
+    issueDate: 'August 2024',
+    imagePath: '/3rd position in hackathon.jpeg'
+  },
+  {
+    title: 'DAV College Hackathon Participation',
+    organization: 'Hackathon',
+    issueDate: 'March 2025',
+    imagePath: '/dav clg hackathon .jpeg'
+  },
+  {
+    title: 'Hackathon Participation',
+    organization: 'Smart Internal Hackathon',
+    issueDate: 'September 2025',
+    imagePath: '/Dav clg hackathon 2 position.jpeg'
+  },
+  {
+    title: 'Certificate of Participation',
+    organization: 'CT Group of Institutions',
+    issueDate: 'October 2025',
+    imagePath: '/CT clg hackathon certificate.jpeg'
+  },
+  {
+    title: 'Certificate of Internship',
+    organization: 'S.R Software Solutions',
+    issueDate: 'Nov-2025 to dec-2025',
+    imagePath: '/internship certificate.jpeg'
+  }
+];
 
 const SKILLS = [
   { name: 'Javascript', icon: <FaJs className="w-10 h-10 text-cyan-400" /> },
@@ -96,12 +170,24 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const projRes = await fetch('http://localhost:5000/api/projects');
-        setProjects(await projRes.json());
-        
-        const certRes = await fetch('http://localhost:5000/api/certificates');
-        setCertificates(await certRes.json());
-      } catch (error) { console.error("Data fetch error", error); }
+        const projRes = await fetch(buildApiUrl('/api/projects'));
+        if (!projRes.ok) {
+          throw new Error('Projects API failed');
+        }
+        const projectsData = await projRes.json();
+        setProjects(Array.isArray(projectsData) && projectsData.length ? projectsData : DEFAULT_PROJECTS);
+
+        const certRes = await fetch(buildApiUrl('/api/certificates'));
+        if (!certRes.ok) {
+          throw new Error('Certificates API failed');
+        }
+        const certificatesData = await certRes.json();
+        setCertificates(Array.isArray(certificatesData) && certificatesData.length ? certificatesData : DEFAULT_CERTIFICATES);
+      } catch (error) {
+        console.error('Data fetch error, using fallback defaults:', error);
+        setProjects(DEFAULT_PROJECTS);
+        setCertificates(DEFAULT_CERTIFICATES);
+      }
     };
     fetchData();
   }, []);
@@ -135,7 +221,7 @@ const App = () => {
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/contact', {
+      const response = await fetch(buildApiUrl('/api/contact'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
