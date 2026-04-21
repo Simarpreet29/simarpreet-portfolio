@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #0a0f1c;
+  color: #ffffff;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+html[data-theme='light'] body {
+  background: #f4f7fb;
+  color: #0f172a;
+}
